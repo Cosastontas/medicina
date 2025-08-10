@@ -1,1 +1,79 @@
+/* Estilo general */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fce4ec;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
 
+.container {
+    margin: 20px;
+}
+
+/* Título */
+h1 {
+    color: #d81b60;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+/* Estilo para cada semestre */
+.semestre {
+    display: inline-block;
+    width: 23%;
+    margin: 10px;
+    background-color: #f8bbd0;
+    padding: 20px;
+    border-radius: 10px;
+    vertical-align: top;
+    min-height: 350px;
+}
+
+.semestre h2 {
+    color: #c2185b;
+    margin-bottom: 20px;
+}
+
+/* Estilo para las materias */
+.materia {
+    display: block;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #ff80ab;
+    color: #880e4f;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s ease;
+}
+
+.materia.aprobada {
+    background-color: #4caf50;
+    color: white;
+    text-decoration: line-through;
+}
+
+.materia.requisito-desbloqueado {
+    background-color: #ff4081;
+    color: white;
+}
+
+.materia:hover {
+    transform: scale(1.05);
+}
+
+.materia:active {
+    transform: scale(0.98);
+}
+
+/* Estilo para los requisitos */
+.requisito {
+    font-size: 0.9em;
+    color: #f50057;
+    visibility: hidden;
+}
+
+.materia.requisito-desbloqueado .requisito {
+    visibility: visible;
+}
