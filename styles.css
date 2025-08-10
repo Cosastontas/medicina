@@ -1,111 +1,98 @@
-/* Estilo general */
+/* ===== Base visual general (puedes ajustar si ya tienes tu propio layout) ===== */
+* { box-sizing: border-box; }
 body {
-    font-family: Arial, sans-serif;
-    background-color: #fce4ec;
-    margin: 0;
-    padding: 0;
-    text-align: center;
+  font-family: Arial, sans-serif;
+  background-color: #fce4ec;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  color: #44263a;
 }
-
-.container {
-    margin: 20px;
-}
-
-/* Título */
+.container { margin: 20px; }
 h1 {
-    color: #d81b60;
-    font-size: 2.5rem;
-    margin-bottom: 40px;
+  color: #d81b60;
+  font-size: 2.2rem;
+  margin: 18px 0 28px;
 }
-
-/* Estilo para cada semestre */
 .semestre {
-    display: inline-block;
-    width: 23%;
-    margin: 10px;
-    background-color: #f8bbd0;
-    padding: 20px;
-    border-radius: 10px;
-    vertical-align: top;
-    min-height: 350px;
+  display: inline-block;
+  width: 23%;
+  min-width: 260px;
+  margin: 10px;
+  background-color: #f8bbd0; /* panel rosa pastel */
+  padding: 18px;
+  border-radius: 12px;
+  vertical-align: top;
+  min-height: 360px;
+  opacity: .55;
+  filter: saturate(.75);
+  transition: opacity .25s ease, filter .25s ease;
 }
-
 .semestre h2 {
-    color: #c2185b;
-    margin-bottom: 20px;
+  color: #c2185b;
+  margin: 0 0 14px;
+  font-size: 1.15rem;
 }
 
-/* Estilo para las materias */
-.materia { 
-  background-color: #f8bbd0; /* rosa pastel base */
+/* Ciclo desbloqueado (activo) */
+.semestre.desbloqueado {
+  opacity: 1;
+  filter: saturate(1);
+}
+
+/* Mientras un ciclo esté bloqueado, no se puede hacer clic en sus materias */
+.semestre:not(.desbloqueado) .materia {
+  pointer-events: none;
+}
+
+/* ===== Materias (estados) ===== */
+.materia {
+  display: block;
+  padding: 14px 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  background-color: #f8bbd0; /* rosa pastel base = bloqueada por defecto si no cumple reqs */
   color: #880e4f;
-  transition: background-color .25s, transform .15s, box-shadow .25s;
+  text-align: center;
+  font-size: .98rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color .25s, transform .15s, box-shadow .25s, color .25s;
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
 }
 
+/* Bloqueada explícita (por claridad visual cuando no cumple requisitos) */
+.materia.bloqueada {
+  background-color: #f8bbd0;
+  color: #7a385c;
+  opacity: .95;
+}
+
+/* Habilitada (prerrequisitos cumplidos, lista para cursarse) */
+.materia.habilitada:not(.aprobada) {
+  background-color: #ff5aa5; /* rosa fuerte */
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(255,90,165,.25);
+}
+
+/* Aprobada (clic) -> lila y tachado */
 .materia.aprobada {
   background-color: #8e76ff; /* lila */
   color: #fff;
   text-decoration: line-through;
   box-shadow: 0 0 0 2px rgba(142,118,255,.25);
 }
-.materia.habilitada:not(.aprobada) {
-  background-color: #ff5aa5; /* rosa más fuerte para indicar que ya puedes cursarla */
-  color: #fff;
-  box-shadow: 0 6px 16px rgba(255,90,165,.25);
-}
-.materia.bloqueada {
-  background-color: #f8bbd0; /* pastel */
-  color: #7a385c;
-  opacity: .9;
-}
+
+/* Efecto “recién desbloqueada” (pulso suave) */
 .materia.recien {
   animation: pulseUnlock 1.2s ease-in-out 2;
 }
 @keyframes pulseUnlock {
-  0%   { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,.45); }
-  50%  { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(255,90,165,0); }
+  0%   { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,.40); }
+  50%  { transform: scale(1.03); box-shadow: 0 0 0 12px rgba(255,90,165,0); }
   100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,0); }
 }
 
-/* Bloqueada explícita (opcional) */
-.materia.bloqueada {
-  background-color: #f8bbd0; /* pastel */
-  color: #7a385c;
-  opacity: .9;
-}
-
-.materia:hover {
-    transform: scale(1.05);
-}
-
-.materia:active {
-    transform: scale(0.98);
-}
-
-/* Estilo para los requisitos */
-.requisito {
-    font-size: 0.9em;
-    color: #f50057;
-    visibility: hidden;
-}
-
-.materia.requisito-desbloqueado .requisito {
-    visibility: visible;
-}
-.semestre {
-  opacity: .55;
-  filter: saturate(.7);
-  transition: opacity .25s, filter .25s;
-}
-
-.semestre.desbloqueado {
-  opacity: 1;
-  filter: saturate(1);
-}
-.semestre:not(.desbloqueado) .materia {
-  pointer-events: none;
-}
+/* Micro-interacciones */
 .materia:hover { transform: translateY(-1px); }
 .materia:active { transform: translateY(0); }
-
-
