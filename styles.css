@@ -44,6 +44,11 @@ h1 {
 .semestre:not(.desbloqueado) .materia {
   pointer-events: none;
 }
+/* ...EXCEPTO las materias habilitadas o ya aprobadas: esas sí pueden clickearse */
+.semestre:not(.desbloqueado) .materia.habilitada,
+.semestre:not(.desbloqueado) .materia.aprobada {
+  pointer-events: auto;
+}
 
 /* ===== Materias (estados) ===== */
 .materia {
