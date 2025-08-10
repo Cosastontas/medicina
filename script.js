@@ -41,34 +41,42 @@ function desbloquearRequisitos(materia) {
         }
     });
 }
-    // --- Utilidad: parsear data-requisitos robustamente ---
+    // === Utilidad: leer requisitos desde data-requisitos (acepta ['a','b'] o 'a,b') ===
 function getReqs(node) {
   const raw = node.dataset.requisitos || "[]";
-  // Admite "['id1','id2']" o "[]" o "id1,id2"
   try {
-    const jsonish = raw.trim().startsWith('[') ? raw.replace(/'/g, '"') : '[]';
-    const arr = JSON.parse(jsonish);
-    if (Array.isArray(arr)) return arr.filter(Boolean);
-  } catch (e) {}
-  return raw
-    .replace(/[\[\]]/g, '')
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
+    // Soporta "['id']" (comillas simples) convirtiéndolo a JSON válido
+    if (raw.trim().startsWith('[')) return JSON.parse(raw.replace(/'/g, '"')).filter(Boolean);
+  } catch(e){}
+  return raw.replace(/[\[\]]/g, '').split(',').map(s => s.trim()).filter(Boolean);
 }
 
-// --- Recalcular estados (bloqueada/habilitada/aprobada) y ciclos ---
+// === ¿Está satisfecho este requisito? ===
+// - Si existe un elemento con ese id, debe estar aprobado.
+// - Si NO existe, se interpreta como "requisito agrupado": TODAS las materias cuyo id
+//   empiece con `${req}-` deben estar aprobadas (ej. 'clinica-ii' -> 'clinica-ii-*').
+function requisitoCumplido(req, aprobadasSet) {
+  const direct = document.getElementById(req);
+  if (direct) return aprobadasSet.has(req);
+  const grupo = [...document.querySelectorAll(`.materia[id^="${req}-"]`)];
+  if (grupo.length === 0) {
+    // Aviso silencioso en consola para ayudarte a detectar ids mal escritos
+    console.warn(`Requisito "${req}" no coincide con ningún id ni prefijo de materias.`);
+    return false;
+  }
+  return grupo.every(m => aprobadasSet.has(m.id));
+}
+
+// === Recalcular estados de TODAS las materias y desbloqueo de ciclos ===
 function recalcEstados() {
   const materias = [...document.querySelectorAll('.materia')];
-  const aprobadas = new Set(
-    materias.filter(m => m.classList.contains('aprobada')).map(m => m.id)
-  );
+  const aprobadas = new Set(materias.filter(m => m.classList.contains('aprobada')).map(m => m.id));
 
-  // Materias: decidir si están habilitadas (todas sus reqs aprobadas)
+  // Materias: decidir si están habilitadas (tienen TODOS sus reqs cumplidos)
   materias.forEach(m => {
     const reqs = getReqs(m);
     const wasUnlocked = m.dataset.unlocked === 'true';
-    const isUnlocked = reqs.every(r => aprobadas.has(r));
+    const isUnlocked = reqs.every(r => requisitoCumplido(r, aprobadas));
 
     m.dataset.unlocked = isUnlocked ? 'true' : 'false';
     m.classList.remove('habilitada', 'bloqueada');
@@ -89,7 +97,7 @@ function recalcEstados() {
     }
   });
 
-  // Ciclos: el ciclo i está desbloqueado si i=1 o si TODAS las materias del ciclo anterior están aprobadas
+  // Ciclos: el 1º siempre desbloqueado; el siguiente se desbloquea si el anterior terminó
   const ciclos = [...document.querySelectorAll('.semestre')];
   ciclos.forEach((sem, idx) => {
     const prev = ciclos[idx - 1];
@@ -98,37 +106,33 @@ function recalcEstados() {
   });
 }
 
-// --- Toggle de aprobación con recálculo global (afecta dependientes y ciclos) ---
+// === Toggle aprobar/desaprobar con recálculo global ===
 function onMateriaClick(e) {
   const m = e.currentTarget;
 
-  // Si el ciclo está bloqueado, ignora
+  // Si el ciclo está bloqueado, no permitir
   const ciclo = m.closest('.semestre');
   if (ciclo && !ciclo.classList.contains('desbloqueado')) return;
 
-  // Toggle aprobar / desaprobar
+  // Alternar aprobado
   m.classList.toggle('aprobada');
 
-  // Al desaprobar, quitamos marcas visuales que no apliquen
+  // Si se des-aprueba, limpiamos señales visuales residuales
   if (!m.classList.contains('aprobada')) {
     m.classList.remove('habilitada', 'recien');
-    m.dataset.unlocked = m.dataset.unlocked || 'false';
   }
 
-  // Recalcular TODO (materias + ciclos) tras el cambio
+  // Recalcular TODO
   recalcEstados();
 }
 
-// --- Inicialización ---
+// === Init ===
 document.addEventListener('DOMContentLoaded', () => {
-  // Vincular eventos (si ya los tenías, puedes reemplazar para evitar duplicados)
   document.querySelectorAll('.materia').forEach(m => {
-    m.removeEventListener?.('click', onMateriaClick); // por si ya estaba
+    m.removeEventListener?.('click', onMateriaClick);
     m.addEventListener('click', onMateriaClick);
   });
-
-  // Primer cálculo para pintar estados iniciales
   recalcEstados();
-});
-}
-
+})
+    
+ 
