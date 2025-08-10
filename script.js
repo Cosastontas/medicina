@@ -9,6 +9,7 @@ document.querySelectorAll('.materia').forEach(materia => {
         
         // Verificar y desbloquear requisitos de otras materias
         desbloquearRequisitos(materia);
+        desbloquearCiclo();
     });
 });
 
@@ -22,4 +23,22 @@ function desbloquearRequisitos(materia) {
             materiaRequisito.classList.add('requisito-desbloqueado');
         }
     });
+    function desbloquearCiclo() {
+    document.querySelectorAll('.semestre').forEach(semestre => {
+        let cicloCompleto = true;
+
+        semestre.querySelectorAll('.materia').forEach(materia => {
+            if (!materia.classList.contains('aprobada')) {
+                cicloCompleto = false;
+            }
+        });
+
+        if (cicloCompleto) {
+            const siguiente = semestre.nextElementSibling;
+            if (siguiente) {
+                siguiente.classList.add('desbloqueado');
+            }
+        }
+    });
+}
 }
