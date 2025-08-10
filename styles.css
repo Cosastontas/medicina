@@ -67,9 +67,11 @@ h1 {
   100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,0); }
 }
 
-.materia.requisito-desbloqueado {
-    background-color: #f8bbd0; 
-    color: white;
+/* Bloqueada explícita (opcional) */
+.materia.bloqueada {
+  background-color: #f8bbd0; /* pastel */
+  color: #7a385c;
+  opacity: .9;
 }
 
 .materia:hover {
