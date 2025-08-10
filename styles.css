@@ -49,13 +49,13 @@ h1 {
 }
 
 .materia.aprobada {
-    background-color: #4caf50;
+    background-color: #9c4dff; 
     color: white;
     text-decoration: line-through;
 }
 
 .materia.requisito-desbloqueado {
-    background-color: #ff4081;
+    background-color: #f8bbd0; 
     color: white;
 }
 
@@ -76,4 +76,12 @@ h1 {
 
 .materia.requisito-desbloqueado .requisito {
     visibility: visible;
+}
+.semestre {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.semestre.desbloqueado {
+    opacity: 1;
 }
