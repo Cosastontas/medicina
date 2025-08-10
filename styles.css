@@ -85,3 +85,63 @@ h1 {
 .semestre.desbloqueado {
     opacity: 1;
 }
+/* ===== Colores de estado para materias ===== */
+.materia { 
+  background-color: #f8bbd0; /* rosa pastel base */
+  color: #880e4f;
+  transition: background-color .25s, transform .15s, box-shadow .25s;
+}
+
+/* Aprobada (lila) */
+.materia.aprobada {
+  background-color: #8e76ff; /* lila */
+  color: #fff;
+  text-decoration: line-through;
+  box-shadow: 0 0 0 2px rgba(142,118,255,.25);
+}
+
+/* Desbloqueada (prerrequisitos completos, más fuerte) */
+.materia.habilitada:not(.aprobada) {
+  background-color: #ff5aa5; /* rosa más fuerte para indicar que ya puedes cursarla */
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(255,90,165,.25);
+}
+
+/* Bloqueada (no cumple requisitos) */
+.materia.bloqueada {
+  background-color: #f8bbd0; /* pastel */
+  color: #7a385c;
+  opacity: .9;
+}
+
+/* Efecto “recién desbloqueada” (pulso) */
+.materia.recien {
+  animation: pulseUnlock 1.2s ease-in-out 2;
+}
+@keyframes pulseUnlock {
+  0%   { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,.45); }
+  50%  { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(255,90,165,0); }
+  100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,0); }
+}
+
+/* ===== Bloqueo/desbloqueo de ciclos ===== */
+.semestre {
+  opacity: .55;
+  filter: saturate(.7);
+  transition: opacity .25s, filter .25s;
+}
+
+/* Ciclo activo (desbloqueado) */
+.semestre.desbloqueado {
+  opacity: 1;
+  filter: saturate(1);
+}
+
+/* Cuando un ciclo está bloqueado, deshabilita clicks en sus materias */
+.semestre:not(.desbloqueado) .materia {
+  pointer-events: none;
+}
+
+/* Pequeñas mejoras de interacción */
+.materia:hover { transform: translateY(-1px); }
+.materia:active { transform: translateY(0); }
