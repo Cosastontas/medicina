@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malla Curricular Interactiva</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Malla Curricular de Medicina</h1>
 
+        <!-- 1° Ciclo -->
+        <div class="semestre" id="ciclo1">
+            <h2>1° Semestre</h2>
+            <div class="materia" id="biologia" data-requisitos="[]">Biología</div>
+            <div class="materia" id="humanismo-persona" data-requisitos="[]">Humanismo y Persona</div>
+            <div class="materia" id="lenguaje-pensamiento" data-requisitos="[]">Lenguaje y Pensamiento I</div>
+            <div class="materia" id="logica-matematica" data-requisitos="[]">Lógica Matemática</div>
+            <div class="materia" id="morfogenesis-i" data-requisitos="[]">Morfogénesis I</div>
+            <div class="materia" id="morfologia-macro-i" data-requisitos="[]">Morfología Macro I</div>
+            <div class="materia" id="morfologia-micro-i" data-requisitos="[]">Morfología Micro I</div>
+            <div class="materia" id="ambiente-salud" data-requisitos="[]">Ambiente y Salud</div>
+            <div class="materia" id="bioquimica" data-requisitos="[]">Bioquímica</div>
+            <div class="materia" id="epistemologia-medica" data-requisitos="[]">Epistemología Médica</div>
+        </div>
+
+        <!-- 2° Ciclo -->
+        <div class="semestre" id="ciclo2">
+            <h2>2° Semestre</h2>
+            <div class="materia" id="fisiologia-i" data-requisitos="['biologia']">Fisiología I</div>
+            <div class="materia" id="humanismo-sociedad" data-requisitos="['humanismo-persona']">Humanismo y Sociedad</div>
+            <div class="materia" id="lenguaje-pensamiento-ii" data-requisitos="['lenguaje-pensamiento']">Lenguaje y Pensamiento II</div>
+            <div class="materia" id="morfogenesis-ii" data-requisitos="['morfogenesis-i']">Morfogénesis II</div>
+            <div class="materia" id="morfologia-macro-ii" data-requisitos="['morfologia-macro-i']">Morfología Macro II</div>
+            <div class="materia" id="morfologia-micro-ii" data-requisitos="['morfologia-micro-i']">Morfología Micro II</div>
+            <div class="materia" id="atencion-primaria" data-requisitos="[]">Atención Primaria de Salud</div>
+            <div class="materia" id="competencias-digitales" data-requisitos="[]">Competencias Digitales</div>
+        </div>
+
+        <!-- Aquí agregar más ciclos como el 3° ciclo, 4° ciclo, etc. -->
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
