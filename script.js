@@ -1,15 +1,15 @@
 /* ==========
-   Malla interactiva basada en requisitos (sin bloqueo por ciclo)
-   - Estados:
-       bloqueada (pastel) -> no clic
-       habilitada (rosa fuerte) -> clic para aprobar
-       aprobada (lila) -> clic para desaprobar
-   - Recién habilitada: animación "pulso"
-   - Requisitos "agrupados": si no existe id exacto, usa prefijo (req-*)
+   Malla interactiva por requisitos (sin bloqueo por ciclo)
+   - Estados automáticos:
+       bloqueada (pastel): no cumple reqs -> sin clic
+       habilitada (rosa fuerte): cumple reqs -> clic la selecciona
+       seleccionada: resaltada para planificar (no aprueba)
+       aprobada (lila): doble clic (o clic estando seleccionada)
+   - Reversible: des-aprobar y todo se recalcula
+   - Requisitos agrupados: 'prefijo' = exige TODAS las materias con id que empiece por 'prefijo-'
    ========== */
 
-/* Lee requisitos desde data-requisitos:
-   acepta ['id'] o "id1,id2" o []  */
+/* Lee requisitos desde data-requisitos: ['id'] o "id1,id2" o [] */
 function getReqs(node) {
   const raw = (node.dataset.requisitos || "").trim();
   if (!raw) return [];
@@ -17,28 +17,26 @@ function getReqs(node) {
     if (raw.startsWith('[')) {
       return JSON.parse(raw.replace(/'/g, '"')).filter(Boolean);
     }
-  } catch (e) { /* fallback abajo */ }
+  } catch (e) {}
   return raw.replace(/[\[\]]/g, '').split(',').map(s => s.trim()).filter(Boolean);
 }
 
-/* Un requisito se cumple si:
-   - Existe un elemento con ese id y está aprobado; o
-   - No existe ese id, y TODAS las materias cuyo id empiece por `${req}-`
-     están aprobadas (prefijo/grupo) */
+/* ¿Requisito cumplido?
+   - Si existe un id exacto: ese id debe estar aprobado.
+   - Si no existe: toma como prefijo y exige TODAS las materias con id que empiece por `${req}-`. */
 function requisitoCumplido(req, aprobadasSet) {
   const exact = document.getElementById(req);
   if (exact) return aprobadasSet.has(req);
 
   const grupo = [...document.querySelectorAll(`.materia[id^="${req}-"]`)];
   if (grupo.length === 0) {
-    // No encontró id ni prefijo. Considera no cumplido (y avisa en consola para depurar ids)
     // console.warn(`Requisito "${req}" no coincide con id ni prefijo.`);
     return false;
   }
   return grupo.every(m => aprobadasSet.has(m.id));
 }
 
-/* Recalcula estados de todas las materias según requisitos */
+/* Recalcular estados según requisitos y aprobaciones actuales */
 function recalcEstados() {
   const materias = [...document.querySelectorAll('.materia')];
   const aprobadas = new Set(materias.filter(m => m.classList.contains('aprobada')).map(m => m.id));
@@ -48,21 +46,22 @@ function recalcEstados() {
     const wasUnlocked = m.dataset.unlocked === 'true';
     const isUnlocked = reqs.every(r => requisitoCumplido(r, aprobadas));
 
-    // Guardar flag de desbloqueo para detectar "recién habilitada"
     m.dataset.unlocked = isUnlocked ? 'true' : 'false';
 
-    // Limpiar estados previos (menos "aprobada")
+    // Limpia estados transitorios (conserva 'aprobada' si existe)
     m.classList.remove('habilitada', 'bloqueada', 'recien');
+    if (!m.classList.contains('aprobada')) {
+      m.classList.remove('seleccionada'); // si pierde requisitos, también pierde selección
+    }
 
     if (m.classList.contains('aprobada')) {
-      // Si ya está aprobada, queda lila (sin importar requisitos)
+      // Si está aprobada, queda lila independientemente de reqs
       return;
     }
 
     if (isUnlocked) {
       m.classList.add('habilitada');
       if (!wasUnlocked) {
-        // Efecto pulso la primera vez que se habilita
         m.classList.add('recien');
         setTimeout(() => m.classList.remove('recien'), 1600);
       }
@@ -72,33 +71,48 @@ function recalcEstados() {
   });
 }
 
-/* Toggle aprobar/desaprobar materia */
+/* Clic simple: seleccionar/deseleccionar si habilitada; si ya estaba seleccionada, aprobar */
 function onMateriaClick(e) {
   const m = e.currentTarget;
 
-  // Si está bloqueada (no cumple requisitos y no está aprobada), no permitir toggle
+  // Bloqueada no permite interacción
   if (m.classList.contains('bloqueada') && !m.classList.contains('aprobada')) return;
 
-  // Alternar estado aprobado
-  m.classList.toggle('aprobada');
-
-  // Al desaprobar, quitamos marcas visuales que no aplican
-  if (!m.classList.contains('aprobada')) {
-    m.classList.remove('habilitada', 'recien');
+  if (m.classList.contains('aprobada')) {
+    // Si está aprobada, clic simple la des-aprueba
+    m.classList.remove('aprobada');
+    recalcEstados();
+    return;
   }
 
-  // Recalcular para propagar desbloqueos/bloqueos en dependientes
+  if (m.classList.contains('seleccionada')) {
+    // Si ya estaba seleccionada → aprobar con clic
+    m.classList.remove('seleccionada');
+    m.classList.add('aprobada');
+    recalcEstados();
+  } else if (m.classList.contains('habilitada')) {
+    // Si está habilitada, el primer clic solo la selecciona (plan)
+    m.classList.add('seleccionada');
+  }
+}
+
+/* Doble clic: aprobar directo si está habilitada; si está aprobada, la revierte */
+function onMateriaDblClick(e) {
+  const m = e.currentTarget;
+  if (m.classList.contains('bloqueada')) return;
+
+  m.classList.toggle('aprobada');
+  m.classList.remove('seleccionada', 'recien');
   recalcEstados();
 }
 
 /* Inicialización */
 document.addEventListener('DOMContentLoaded', () => {
-  // Vincular eventos (evitar duplicados si hay hot reload)
   document.querySelectorAll('.materia').forEach(m => {
     m.removeEventListener?.('click', onMateriaClick);
+    m.removeEventListener?.('dblclick', onMateriaDblClick);
     m.addEventListener('click', onMateriaClick);
+    m.addEventListener('dblclick', onMateriaDblClick);
   });
-
-  // Pintado inicial
   recalcEstados();
 });
