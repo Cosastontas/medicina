@@ -68,14 +68,12 @@ function recalcEstados() {
   });
 
   // Ciclos: el primero siempre desbloqueado. Del 2º en adelante, se desbloquea si el anterior está 100% aprobado.
-  const ciclos = [...document.querySelectorAll('.semestre')];
-  ciclos.forEach((sem, idx) => {
-    const previo = ciclos[idx - 1];
-    const prevOk = !previo || [...previo.querySelectorAll('.materia')]
-      .every(m => m.classList.contains('aprobada'));
-    sem.classList.toggle('desbloqueado', idx === 0 || prevOk);
-  });
-}
+const ciclos = [...document.querySelectorAll('.semestre')];
+ciclos.forEach((sem, idx) => {
+  const mats = [...sem.querySelectorAll('.materia')];
+  const activo = idx === 0 || mats.some(m => m.classList.contains('aprobada') || m.dataset.unlocked === 'true');
+  sem.classList.toggle('desbloqueado', activo);
+});
 
 /* Toggle aprobar/desaprobar con recálculo global */
 /* ==========
@@ -161,19 +159,15 @@ function recalcEstados() {
 function onMateriaClick(e) {
   const m = e.currentTarget;
 
-  // Si el ciclo está bloqueado, ignorar
-  const ciclo = m.closest('.semestre');
-  if (ciclo && !ciclo.classList.contains('desbloqueado')) return;
-
-  // Alternar estado
+  // Alternar aprobado SIEMPRE que el usuario haga clic
   m.classList.toggle('aprobada');
 
-  // Si se des-aprueba, limpia marcas visuales que ya no aplican
+  // Si se des-aprueba, limpia marcas visuales
   if (!m.classList.contains('aprobada')) {
     m.classList.remove('habilitada', 'recien');
   }
 
-  // Recalcular toda la red de dependencias + ciclos
+  // Recalcular toda la red
   recalcEstados();
 }
 
