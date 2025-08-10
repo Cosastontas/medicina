@@ -1,105 +1,96 @@
-/* ===== Base visual general (puedes ajustar si ya tienes tu propio layout) ===== */
+/* ===== Base visual ===== */
 * { box-sizing: border-box; }
 body {
   font-family: Arial, sans-serif;
-  background-color: #fce4ec;
+  background-color: #fce4ec; /* fondo rosa muy suave */
   margin: 0;
   padding: 0;
   text-align: center;
   color: #44263a;
 }
-.container { margin: 20px; }
+
+.container { margin: 22px; }
+
 h1 {
   color: #d81b60;
   font-size: 2.2rem;
-  margin: 18px 0 28px;
+  margin: 12px 0 28px;
 }
+
+/* Panel de cada ciclo (solo estética, NO bloquea interacción) */
 .semestre {
   display: inline-block;
   width: 23%;
   min-width: 260px;
   margin: 10px;
-  background-color: #f8bbd0;
+  background-color: #f8bbd0; /* panel rosa pastel */
   padding: 18px;
   border-radius: 12px;
   vertical-align: top;
   min-height: 360px;
-  opacity: .75;              /* leve atenuación por defecto */
-  filter: saturate(.85);
-  transition: opacity .25s ease, filter .25s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+  transition: filter .25s ease, transform .15s ease;
 }
+.semestre:hover { transform: translateY(-1px); }
 
 .semestre h2 {
   color: #c2185b;
   margin: 0 0 14px;
-  font-size: 1.15rem;
-}
-
-/* Ciclo desbloqueado (activo) */
-.semestre.desbloqueado {
-  opacity: 1;
-  filter: saturate(1);
-}
-.semestre .materia {
-  pointer-events: auto;
-}
-
-/* Mientras un ciclo esté bloqueado, no se puede hacer clic en sus materias */
-.semestre:not(.desbloqueado) .materia {
-  pointer-events: none;
-}
-/* ...EXCEPTO las materias habilitadas o ya aprobadas: esas sí pueden clickearse */
-.semestre:not(.desbloqueado) .materia.habilitada,
-.semestre:not(.desbloqueado) .materia.aprobada {
-  pointer-events: auto;
+  font-size: 1.12rem;
 }
 
 /* ===== Materias (estados) ===== */
+/* Estado base = bloqueada visual (rosa pastel). El JS pondrá habilitada/aprobada según requisitos. */
 .materia {
+  display: block;
+  padding: 14px 12px;
+  margin: 10px 0;
+  border-radius: 10px;
   background-color: #f8bbd0; /* rosa pastel base */
   color: #880e4f;
-  transition: background-color .25s, transform .15s, box-shadow .25s, color .25s;
-}
-.materia.aprobada {
-  background-color: #8e76ff; /* lila */
-  color: #fff;
-  text-decoration: line-through;
-  box-shadow: 0 0 0 2px rgba(142,118,255,.25);
-}
-.materia.habilitada:not(.aprobada) {
-  background-color: #ff5aa5; /* rosa fuerte (desbloqueada) */
-  color: #fff;
-  box-shadow: 0 6px 16px rgba(255,90,165,.25);
+  text-align: center;
+  font-size: .98rem;
+  user-select: none;
+  transition: background-color .25s, transform .15s, box-shadow .25s, color .25s, opacity .2s, filter .2s;
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
 }
 
-/* Bloqueada explícita (por claridad visual cuando no cumple requisitos) */
+/* Bloqueada: aún no cumple requisitos -> no clickeable */
 .materia.bloqueada {
   background-color: #f8bbd0;
   color: #7a385c;
-  opacity: .95;
+  opacity: .9;
+  cursor: not-allowed;
+  filter: grayscale(0.08);
 }
 
-/* Habilitada (prerrequisitos cumplidos, lista para cursarse) */
-.materia.habilitada:not(.aprobada) {
+/* Habilitada: ya cumple TODOS los requisitos, lista para seleccionar */
+.materia.habilitada {
   background-color: #ff5aa5; /* rosa fuerte */
   color: #fff;
+  cursor: pointer;
   box-shadow: 0 6px 16px rgba(255,90,165,.25);
 }
+.materia.habilitada:hover { transform: translateY(-1px); }
 
-/* Aprobada (clic) -> lila y tachado */
+/* Aprobada: clic -> lila y tachado; clic de nuevo revierte */
 .materia.aprobada {
   background-color: #8e76ff; /* lila */
   color: #fff;
   text-decoration: line-through;
   box-shadow: 0 0 0 2px rgba(142,118,255,.25);
+  cursor: pointer;
 }
 
-/* Efecto “recién desbloqueada” (pulso suave) */
-.materia.recien { animation: pulseUnlock 1.2s ease-in-out 2; }
+/* Efecto “recién desbloqueada” (pulso suave al pasar a habilitada) */
+.materia.recien {
+  animation: pulseUnlock 1.2s ease-in-out 2;
+}
 @keyframes pulseUnlock {
   0%   { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,.40); }
   50%  { transform: scale(1.03); box-shadow: 0 0 0 12px rgba(255,90,165,0); }
   100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,90,165,0); }
 }
-.materia:hover { transform: translateY(-1px); }
+
+/* Micro-interacciones */
 .materia:active { transform: translateY(0); }
